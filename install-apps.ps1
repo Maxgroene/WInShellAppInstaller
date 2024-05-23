@@ -11,7 +11,7 @@ $apps = @(
     "Discord.Discord",
     "Git.Git",
     "Oracle.VirtualBox",
-    "DuckDuckGo.DesktopBrowser",
+    "MullvadVPN.MullvadBrowser",
     "emqx.mqttx",
     "Nextcloud.NextcloudDesktop",
     "OpenVPNTechnologies.OpenVPNConnect",

@@ -1,6 +1,9 @@
 # WInShellAppInstaller
-
-This repository contains a set of scripts to facilitate the installation of applications on Windows systems. 
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/PowerShell_5.0_icon.png"
+     alt="Markdown Monster icon"
+     style="float: left; margin-right: 10px;" />
+     
+This Windows Powershell scrypt simplifies the installation of the most important apps for my private school use as well as the graphical customisation of the terminal and the installation of the most important drivers for communication with µControllers  
 
 ## Usage
 
