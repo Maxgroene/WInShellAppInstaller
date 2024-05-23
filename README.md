@@ -22,7 +22,7 @@ This Windows Powershell scrypt simplifies the installation of the most important
     .\install-apps.ps1
 <img src="https://raw.githubusercontent.com/Maxgroene/WInShellAppInstaller/main/Images/installerpreview.png"
      alt="AppInstallerPreview"
-     style="float: left; margin-right: 10px;" />
+     style="float: left; margin-right:;" />
      here you can choose what do you want to install
 
 3. **Deny Script Execution:**
