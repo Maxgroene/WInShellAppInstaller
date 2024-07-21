@@ -1,7 +1,6 @@
 
 $apps = @(
     "Microsoft.VisualStudioCode",
-    "Mozilla.Firefox",
     "7zip.7zip",
     "Spotify.Spotify",
     "Balena.Etcher",
@@ -9,20 +8,15 @@ $apps = @(
     "Bitwarden.Bitwarden",
     "Microsoft.VisualStudio.2022.Community",
     "Discord.Discord",
-    "Git.Git",
-    "Oracle.VirtualBox",
-    "MullvadVPN.MullvadBrowser",
-    "emqx.mqttx",
-    "Nextcloud.NextcloudDesktop",
     "OpenVPNTechnologies.OpenVPNConnect",
     "Prusa3D.PrusaSlicer",
     "Valve.Steam",
     "WinSCP.WinSCP",
-    "angryziber.AngryIPScanner",
-    "Tutanota.Tutanota",
+    "Devolutions.RemoteDesktopManager",
+    "TeamViewer.TeamViewer",
     "ApacheFriends.Xampp.8.2",
-    "valinet.ExplorerPatcher",
-    "9WZDNCRD29V9"
+    "9N8NNWNVT8LQ",
+    "9WZDNCRFJ4MV"
 )
 Write-Host "
                            _____           _        _ _           
@@ -34,7 +28,6 @@ Write-Host "
           | |   | |                                               
           |_|   |_|                                               
 " -ForegroundColor Green
-Write-Host "From Max Groeneweg" -ForegroundColor Blue
 
 $installApps = Read-Host "Do you want to Install the Apps? (y/n)"
 
@@ -45,6 +38,47 @@ $WindowsDarkMode = Read-Host "Do you want to enable the windows Dark Mode? (y/n)
 $InstallCP210xDriver = Read-Host "Do you want to Install the CP210x Driver? (y/n)"
 
 if ($installApps -eq "y") {
+    # Prüfen, ob winget installiert ist
+if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
+    Write-Host "winget ist nicht installiert. Versuche, es zu installieren..."
+
+    # Prüfen, ob die App Installer Anwendung installiert ist
+    $appInstallerPath = "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe"
+    if (Test-Path $appInstallerPath) {
+        Write-Host "App Installer ist vorhanden, aber winget ist nicht verfügbar. Versuche, winget zu aktivieren..."
+
+        # Versuchen, winget zu aktivieren
+        $wingetPath = "$appInstallerPath\winget.exe"
+        if (Test-Path $wingetPath) {
+            Write-Host "winget.exe gefunden, versuche zu registrieren..."
+            Start-Process -FilePath $wingetPath -ArgumentList "source reset" -Wait
+            if (Get-Command winget -ErrorAction SilentlyContinue) {
+                Write-Host "winget erfolgreich aktiviert."
+            } else {
+                Write-Host "Fehler beim Aktivieren von winget."
+            }
+        } else {
+            Write-Host "winget.exe nicht gefunden. Manuelles Eingreifen erforderlich."
+        }
+    } else {
+        Write-Host "App Installer ist nicht installiert. Versuche, App Installer herunterzuladen und zu installieren..."
+
+        # App Installer herunterladen und installieren
+        $installerUrl = "https://aka.ms/getwinget"
+        $installerPath = "$env:TEMP\AppInstaller.msi"
+        Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+        Start-Process -FilePath msiexec.exe -ArgumentList "/i $installerPath /quiet /norestart" -Wait
+
+        if (Get-Command winget -ErrorAction SilentlyContinue) {
+            Write-Host "winget erfolgreich installiert."
+        } else {
+            Write-Host "Fehler bei der Installation von winget."
+        }
+    }
+} else {
+    Write-Host "winget ist bereits installiert."
+}
+
     foreach ($app in $apps) {
         Write-Host "Installing $app..."
         winget install --id $app --silent --accept-package-agreements --accept-source-agreements
