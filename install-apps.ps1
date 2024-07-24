@@ -31,7 +31,7 @@ Write-Host "
 
 $installApps = Read-Host "Do you want to Install the Apps? (y/n)"
 
-$customizeTerminal = Read-Host "Do you want to changing the colors of your terminal? (y/n)"
+$hyperV = Read-Host "Do you want to InstallHyperV? (y/n)"
 
 $WindowsDarkMode = Read-Host "Do you want to enable the windows Dark Mode? (y/n)"
 
@@ -92,28 +92,12 @@ if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
     Write-Host "App Installation skipped."
 }
 
-if ($customizeTerminal -eq "y") {
-    Write-Host "Changing the colors of the terminal..."
-    winget install JanDeDobbeleer.OhMyPosh --silent --accept-package-agreements --accept-source-agreements
-    New-Item -Type File -Force $profile
-    Add-Content -Path $PROFILE -Value 'oh-my-posh --init --shell pwsh --config ~/AppData/Local/Programs/oh-my-posh/themes/powerline.omp.json | Invoke-Expression'
-    Write-Host "The colors of the Terminal changed succesfully."
-} else {
-    Write-Host "Changing colors of the Terminal was skipped."
-}
-
-if ($WindowsDarkMode -eq "y") {
-    $personalizePath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-    $appsUseLightTheme = "AppsUseLightTheme"
-    $systemUsesLightTheme = "SystemUsesLightTheme"
-
-    # Set both themes (Apps and System) to dark mode
-    Set-ItemProperty -Path $personalizePath -Name $appsUseLightTheme -Value 0
-    Set-ItemProperty -Path $personalizePath -Name $systemUsesLightTheme -Value 0
+if ($hyperV -eq "y") {
+    Write-Host "Aktivating"
     
-    Write-Host "Windows DarkMode enabled."
-} else {
-    Write-Host "Changing To Windows DarkMode was skipped."
+    Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+
+    $pcRestart = Read-Host "You need to Reboot your PC. Do you want to Reboot Automatically? (y/n)"
 }
 
 if ($InstallCP210xDriver -eq "y") {
