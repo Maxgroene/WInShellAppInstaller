@@ -31,7 +31,7 @@ Write-Host "
 
 $installApps = Read-Host "Do you want to Install the Apps? (y/n)"
 
-$hyperV = Read-Host "Do you want to InstallHyperV? (y/n)"
+$hyperV = Read-Host "Do you want to Install HyperV? (y/n)"
 
 $WindowsDarkMode = Read-Host "Do you want to enable the windows Dark Mode? (y/n)"
 
@@ -130,3 +130,8 @@ Write-Host "Treiberinstallation abgeschlossen."
 }
 
 
+if ($pcRestart -eq "y") {
+    Write-Host "Restarting"
+    
+    Restart-Computer
+}
