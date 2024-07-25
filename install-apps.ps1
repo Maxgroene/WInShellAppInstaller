@@ -1,4 +1,3 @@
-
 $apps = @(
     "Microsoft.VisualStudioCode",
     "7zip.7zip",
@@ -30,54 +29,51 @@ Write-Host "
 " -ForegroundColor Green
 
 $installApps = Read-Host "Do you want to Install the Apps? (y/n)"
-
 $hyperV = Read-Host "Do you want to Install HyperV? (y/n)"
-
 $WindowsDarkMode = Read-Host "Do you want to enable the windows Dark Mode? (y/n)"
-
 $InstallCP210xDriver = Read-Host "Do you want to Install the CP210x Driver? (y/n)"
 
 if ($installApps -eq "y") {
     # Prüfen, ob winget installiert ist
-if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
-    Write-Host "winget ist nicht installiert. Versuche, es zu installieren..."
+    if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Host "winget ist nicht installiert. Versuche, es zu installieren..."
 
-    # Prüfen, ob die App Installer Anwendung installiert ist
-    $appInstallerPath = "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe"
-    if (Test-Path $appInstallerPath) {
-        Write-Host "App Installer ist vorhanden, aber winget ist nicht verfügbar. Versuche, winget zu aktivieren..."
+        # Prüfen, ob die App Installer Anwendung installiert ist
+        $appInstallerPath = "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe"
+        if (Test-Path $appInstallerPath) {
+            Write-Host "App Installer ist vorhanden, aber winget ist nicht verfügbar. Versuche, winget zu aktivieren..."
 
-        # Versuchen, winget zu aktivieren
-        $wingetPath = "$appInstallerPath\winget.exe"
-        if (Test-Path $wingetPath) {
-            Write-Host "winget.exe gefunden, versuche zu registrieren..."
-            Start-Process -FilePath $wingetPath -ArgumentList "source reset" -Wait
-            if (Get-Command winget -ErrorAction SilentlyContinue) {
-                Write-Host "winget erfolgreich aktiviert."
+            # Versuchen, winget zu aktivieren
+            $wingetPath = "$appInstallerPath\winget.exe"
+            if (Test-Path $wingetPath) {
+                Write-Host "winget.exe gefunden, versuche zu registrieren..."
+                Start-Process -FilePath $wingetPath -ArgumentList "source reset" -Wait
+                if (Get-Command winget -ErrorAction SilentlyContinue) {
+                    Write-Host "winget erfolgreich aktiviert."
+                } else {
+                    Write-Host "Fehler beim Aktivieren von winget."
+                }
             } else {
-                Write-Host "Fehler beim Aktivieren von winget."
+                Write-Host "winget.exe nicht gefunden. Manuelles Eingreifen erforderlich."
             }
         } else {
-            Write-Host "winget.exe nicht gefunden. Manuelles Eingreifen erforderlich."
+            Write-Host "App Installer ist nicht installiert. Versuche, App Installer herunterzuladen und zu installieren..."
+
+            # App Installer herunterladen und installieren
+            $installerUrl = "https://aka.ms/getwinget"
+            $installerPath = "$env:TEMP\AppInstaller.msi"
+            Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+            Start-Process -FilePath msiexec.exe -ArgumentList "/i $installerPath /quiet /norestart" -Wait
+
+            if (Get-Command winget -ErrorAction SilentlyContinue) {
+                Write-Host "winget erfolgreich installiert."
+            } else {
+                Write-Host "Fehler bei der Installation von winget."
+            }
         }
     } else {
-        Write-Host "App Installer ist nicht installiert. Versuche, App Installer herunterzuladen und zu installieren..."
-
-        # App Installer herunterladen und installieren
-        $installerUrl = "https://aka.ms/getwinget"
-        $installerPath = "$env:TEMP\AppInstaller.msi"
-        Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
-        Start-Process -FilePath msiexec.exe -ArgumentList "/i $installerPath /quiet /norestart" -Wait
-
-        if (Get-Command winget -ErrorAction SilentlyContinue) {
-            Write-Host "winget erfolgreich installiert."
-        } else {
-            Write-Host "Fehler bei der Installation von winget."
-        }
+        Write-Host "winget ist bereits installiert."
     }
-} else {
-    Write-Host "winget ist bereits installiert."
-}
 
     foreach ($app in $apps) {
         Write-Host "Installing $app..."
@@ -93,45 +89,64 @@ if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
 }
 
 if ($hyperV -eq "y") {
-    Write-Host "Aktivating"
-    
-    Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+    # Request if Windows 10/11 pro is installed
+    $edition = (Get-WmiObject -Class Win32_OperatingSystem).OperatingSystemSKU
+    if ($edition -eq 48 -or $edition -eq 49 -or $edition -eq 50 -or $edition -eq 51) {
+        Write-Host "Aktivating Hyper-V..."
+        Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 
-    $pcRestart = Read-Host "You need to Reboot your PC. Do you want to Reboot Automatically? (y/n)"
+        $pcRestart = Read-Host "You need to Reboot your PC. Do you want to Reboot Automatically? (y/n)"
+    } else {
+        Write-Host "Hyper-V is only available on Windows 10/11 Pro."
+    }
 }
 
 if ($InstallCP210xDriver -eq "y") {
-# Definiere die URLs und Pfade
-$downloadUrl = "https://www.silabs.com/documents/public/software/CP210x_Universal_Windows_Driver.zip"
-$zipFilePath = "$env:TEMP\CP210x_Universal_Windows_Driver.zip"
-$extractPath = "$env:TEMP\CP210x_Universal_Windows_Driver"
+    # Definiere die URLs und Pfade
+    $downloadUrl = "https://www.silabs.com/documents/public/software/CP210x_Universal_Windows_Driver.zip"
+    $zipFilePath = "$env:TEMP\CP210x_Universal_Windows_Driver.zip"
+    $extractPath = "$env:TEMP\CP210x_Universal_Windows_Driver"
 
-# Herunterladen der ZIP-Datei
-Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath
+    # Herunterladen der ZIP-Datei
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath
 
-# Erstellen des Verzeichnisses für die entpackten Dateien
-if (!(Test-Path -Path $extractPath)) {
-    New-Item -ItemType Directory -Path $extractPath | Out-Null
+    # Erstellen des Verzeichnisses für die entpackten Dateien
+    if (!(Test-Path -Path $extractPath)) {
+        New-Item -ItemType Directory -Path $extractPath | Out-Null
+    }
+
+    # Entpacken der ZIP-Datei
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFilePath, $extractPath)
+
+    # Installieren des Treibers
+    $infPath = Get-ChildItem -Path $extractPath -Filter "*.inf" -Recurse | Select-Object -First 1
+    pnputil.exe /add-driver $infPath.FullName /install
+
+    # Bereinigen der temporären Dateien
+    Remove-Item -Path $zipFilePath -Force
+    Remove-Item -Path $extractPath -Recurse -Force
+
+    Write-Host "The driver installation was finished."
 }
 
-# Entpacken der ZIP-Datei
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::ExtractToDirectory($zipFilePath, $extractPath)
+if ($PowerSettings -eq "y") {
 
-# Installieren des Treibers
-$infPath = Get-ChildItem -Path $extractPath -Filter "*.inf" -Recurse | Select-Object -First 1
-pnputil.exe /add-driver $infPath.FullName /install
+    powercfg /change monitor-timeout-dc 120
 
-# Bereinigen der temporären Dateien
-Remove-Item -Path $zipFilePath -Force
-Remove-Item -Path $extractPath -Recurse -Force
+    powercfg /change standby-timeout-dc 180
 
-Write-Host "Treiberinstallation abgeschlossen."
+    powercfg /change monitor-timeout-ac 600
+
+    powercfg /change standby-timeout-ac 1800
+
+    Write-Host "The Energy settings are changed."
+
 }
+
 
 
 if ($pcRestart -eq "y") {
-    Write-Host "Restarting"
-    
+    Write-Host "Restarting..."
     Restart-Computer
 }
