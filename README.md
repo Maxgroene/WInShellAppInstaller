@@ -12,7 +12,7 @@ This Windows Powershell scrypt simplifies the installation of the most important
    Before running the installation script, ensure that PowerShell script execution is allowed. You can do this by executing the following command:
 
    ```powershell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 
 2. **Run Scrypt:**
    
